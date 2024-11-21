@@ -1,0 +1,103 @@
+*
+  Ping))) Sensor
+
+  This sketch reads a PING))) ultrasonic rangefinder and returns the distance
+  to the closest object in range. To do this, it sends a pulse to the sensor to
+  initiate a reading, then listens for a pulse to return. The length of the
+  returning pulse is proportional to the distance of the object from the sensor.
+
+  The circuit:
+	- +V connection of the PING))) attached to +5V
+	- GND connection of the PING))) attached to ground
+	- SIG connection of the PING))) attached to digital pin 7
+
+  created 3 Nov 2008
+  by David A. Mellis
+  modified 30 Aug 2011
+  by Tom Igoe
+
+  This example code is in the public domain.
+
+  https://www.arduino.cc/en/Tutorial/BuiltInExamples/Ping
+*/
+
+const int trigPin = 7;
+const int echoPin = 8;
+
+const byte red = 9;
+const byte green = 11;
+const byte blue = 10;
+
+const int threshold = 15;
+const int af = 25;
+const int av = 35;
+const int avx = 45;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(red, OUTPUT);
+  pinMode(green, OUTPUT);
+  pinMode(blue, OUTPUT);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  
+}
+
+void loop() {
+  long duration, inches, cm;
+
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+
+  inches = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+
+  if(cm<threshold){
+    digitalWrite(red, HIGH);
+    digitalWrite(green, LOW);
+    digitalWrite(blue, LOW);
+  }
+  else{
+    digitalWrite(red, LOW);
+  }
+  
+  if (cm<av){
+    digitalWrite(blue, HIGH);
+    digitalWrite(red, LOW);
+    digitalWrite(green, LOW);
+  }
+  else{
+    digitalWrite(blue, LOW);
+  }
+
+  if (cm<af) {
+    digitalWrite(green, HIGH);
+    digitalWrite(blue, LOW);
+    digitalWrite(red, LOW);
+  }
+  else{
+    digitalWrite(green, LOW);
+  }
+
+
+  Serial.print(inches);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
+
+  delay(100);
+}
+
+long microsecondsToInches(long microseconds) {
+  return microseconds / 74 / 2;
+}
+
+long microsecondsToCentimeters(long microseconds) {
+  return microseconds / 29 / 2;
+}
